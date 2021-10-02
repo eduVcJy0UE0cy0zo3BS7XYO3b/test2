@@ -68,10 +68,10 @@
 (conman/bind-connection *db* "backend/pacients.sql")
 
 (defn db-to-str [date]
-  (f/unparse (f/formatters :date)
-             (clj-core/plus (c/from-sql-date date)
-                            ;; TODO change locale on db server
-                            (clj-core/days 1))))
+  (f/unparse (f/formatters :date) (c/from-sql-date date)))
+             ;; (clj-core/plus (c/from-sql-date date)
+             ;;                ;; TODO change locale on db server
+             ;;                (clj-core/days 1))))
 
 (defn wrap-update-pacient [pacient]
   (let [pacient* (update pacient :dob #(c/to-sql-date %))]
