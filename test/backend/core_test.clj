@@ -27,7 +27,7 @@
 
   (conman/disconnect! *test-db-spec*))
 
-(use-fixtures :once fix-with-db)
+;; (use-fixtures :once fix-with-db)
 
 (defn parse-body [response]
   (m/decode "application/json" (:body response)))
