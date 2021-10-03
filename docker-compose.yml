@@ -1,0 +1,16 @@
+version: '3.0'
+services:
+  web:
+    restart: 'always'
+    ports:
+      - '8000:8000'
+    environment:
+      - "DB_PROD_ADAPTER=${DB_PROD_ADAPTER}"
+      - "DB_PROD_USERNAME=${DB_PROD_USERNAME}"
+      - "DB_PROD_PASSWORD=${DB_PROD_PASSWORD}"
+      - "DB_PROD_DATABASE_NAME=${DB_PROD_DATABASE_NAME}"
+      - "DB_PROD_SERVER_NAME=${DB_PROD_SERVER_NAME}"
+      - "DB_PROD_PORT_NUMBER=${DB_PROD_PORT_NUMBER}"
+    build:
+      context: .
+      dockerfile: Dockerfile

@@ -146,11 +146,11 @@
   http-server
   :start
   (jetty/run-jetty #'app
-                   {:port 8000 #_(Integer/parseInt (env :app-port))
+                   {:port 8000
                     :host "0.0.0.0"
                     :join? false})
   :stop (.stop http-server))
 
 (defn -main []
-  (println (str "Running web server on 0.0.0.0:8000" #_(env :app-port)))
+  (println (str "Running web server on 0.0.0.0:8000"))
   (mount/start))

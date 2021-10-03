@@ -52,12 +52,12 @@
 ;; Экспорт всех функций в текущий namespace
 
 (def pool-spec
-  {:adapter            "postgresql" #_(env :db-prod-adapter)
-   :username           "developer" #_(env :db-prod-username)
-   :password           "developer_password" #_(env :db-prod-password)
-   :database-name      "production" #_(env :db-prod-database-name)
-   :server-name        "db.liltechdude.xyz" #_(env :db-prod-server-name)
-   :port-number        "5432" #_(env :db-prod-port-number)})
+  {:adapter            (env :db-prod-adapter)
+   :username           (env :db-prod-username)
+   :password           (env :db-prod-password)
+   :database-name      (env :db-prod-database-name)
+   :server-name        (env :db-prod-server-name)
+   :port-number        (env :db-prod-port-number)})
 
 (mount/defstate ^:dynamic
   ^{:on-reload :noop}
