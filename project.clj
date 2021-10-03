@@ -34,6 +34,9 @@
                  ;; доступа к базе данных.
                  [environ "1.2.0"]
 
+                 [com.taoensso/timbre "5.1.2"]
+                 [ring-logger "1.0.1"]
+
                  ;; Тестирование
                  [ring/ring-mock "0.4.0"]]
 

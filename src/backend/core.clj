@@ -1,6 +1,7 @@
 (ns backend.core
   (:require [backend.db :as db]
-            [clojure.tools.logging :as log]
+            [taoensso.timbre :as timbre :refer [log info error]]
+            [ring.logger :as logger]
             [backend.time_check :refer [dob?]]
             [reitit.ring.coercion :as coercion]
             [reitit.ring.middleware.exception :as reitit-exception]
@@ -92,8 +93,7 @@
                    (let [pacient (-> request :body-params)]
                      (if (oms-already-exist? pacient)
                        (return-error "Пациент с таким ОМС уже существует.")
-                       (insert-pacient pacient))
-                     ))}}]
+                       (insert-pacient pacient))))}}]
      ["/pacient/update"
       {:put
        {:summary "Обновление данных о пациенте."
@@ -124,7 +124,11 @@
                         :default-values true
                         :options nil})
             :muuntaja   m/instance
-            :middleware [#(wrap-cors %
+            :middleware [#(logger/wrap-with-logger %
+                          {:log-fn
+                           (fn [{:keys [level throwable message]}]
+                             (log level throwable message))})
+                         #(wrap-cors %
                                      :access-control-allow-origin [#".*"]
                                      :access-control-allow-methods [:get :post :put :delete])
                          parameters/parameters-middleware
@@ -135,7 +139,7 @@
                            reitit-exception/default-handlers
                            {::reitit-exception/wrap
                             (fn [handler ^Exception e request]
-                              (log/error e (.getMessage e))
+                              (error e (.getMessage e))
                               (handler e request))}))
                          muuntaja/format-request-middleware
                          coercion/coerce-request-middleware
@@ -152,5 +156,5 @@
   :stop (.stop http-server))
 
 (defn -main []
-  (println (str "Running web server on 0.0.0.0:8000"))
+  (info (str "Running web server on 0.0.0.0:8000"))
   (mount/start))
