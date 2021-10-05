@@ -75,7 +75,7 @@
                     :body {:health "ok"}})}
        :post
        {:summary "Возвращает переданные поля."
-        :parameters {:body pacient-spec}
+        :parameters {:body new-pacient-spec}
         :handler (fn [request]
                    {:status 200
                     :body (:body-params request)})}}]
