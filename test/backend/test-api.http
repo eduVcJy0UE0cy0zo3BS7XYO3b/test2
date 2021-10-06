@@ -1,0 +1,75 @@
+# -*- restclient -*-
+
+# Хэдеры которые будут использоваться во всех запросах
+:my-headers = <<
+Accept-Charset: utf-8
+Content-Type: application/json
+
+# Проверка базовой работы сервиса
+GET http://localhost:8000/health
+:my-headers
+
+
+# Получение списка всех пациентов
+GET http://localhost:8000/pacients
+:my-headers
+-> jq-set-var
+
+# Проверка спеки
+POST http://localhost:8000/health
+:my-headers
+
+{
+"id": 25,
+"second-name": "Поляков",
+"first-name": "Дмитрий",
+"third-name": "Сергеевич",
+"sex": "М",
+"dob": "2000-04-20",
+"address": "Yekaterinburg",
+"oms": 8155999729000315
+}
+
+# Внесение нового пациента
+POST http://localhost:8000/pacient/insert
+:my-headers
+
+{
+"second-name": "Поляков",
+"first-name": "Дмитрий",
+"third-name": "Сергеевич",
+"sex": "М",
+"dob": "2000-04-20",
+"address": "Yekaterinburg",
+"oms": 8155999729000313
+}
+
+# Внесение нового пациента
+PUT http://localhost:8000/pacient/update
+:my-headers
+
+{
+"id": 25,
+"second-name": "Поляков",
+"first-name": "Дмитрий",
+"third-name": "Сергеевич",
+"sex": "М",
+"dob": "2000-04-21",
+"address": "Yekaterinburg",
+"oms": 8155999729000313
+}
+
+# Удаление пациента
+DELETE http://localhost:8000/pacient/remove
+:my-headers
+
+{
+"id": 25,
+"second-name": "Поляков",
+"first-name": "Дмитрий",
+"third-name": "Сергеевич",
+"sex": "М",
+"dob": "2000-04-20",
+"address": "Yekaterinburg",
+"oms": 8155999729000313
+}

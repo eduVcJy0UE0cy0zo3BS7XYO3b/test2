@@ -78,9 +78,7 @@
     (update-pacient pacient*)))
 
 (defn wrap-all-pacients []
-  (into []
-        (for [p (all-pacients)]
-          (update p :dob (fn [el] (db-to-str el))))))
+  (for [p (all-pacients)] (update p :dob db-to-str)))
 
 (defn wrap-insert-pacient [pacient]
   (let [pacient* (update pacient :dob #(c/to-sql-date %))]

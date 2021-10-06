@@ -12,7 +12,7 @@ create table if not exists pacients (
   oms               BIGINT
   )
 
--- :name insert-pacient :<!
+-- :name insert-pacient :<! :1
 insert into pacients (
   second_name,
   first_name,

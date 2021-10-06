@@ -32,14 +32,13 @@
 (defn parse-body [response]
   (m/decode "application/json" response))
 
-
 (def test-pacient {:second-name "Поляков"
                    :first-name  "Дмитрий"
                    :third-name  "Сергеевич"
                    :sex         "М"
                    :dob         "2000-04-20"
                    :address     "Yekaterinburg"
-                   :oms         8155999729000314})
+                   :oms         max-oms})
 
 (def test-pacient2 {:second-name "Полухина"
                     :first-name  "Жанна"
@@ -47,7 +46,11 @@
                     :sex         "Ж"
                     :dob         "1980-01-01"
                     :address     "Moscow"
-                    :oms         1111111111111111})
+                    :oms         min-oms})
+
+;; (defn memm [resp] (case (>= (:status resp) 400)
+;;                true (update resp :body :humanized)
+;;                false resp))
 
 (defn request
   ([method uri]
@@ -66,52 +69,94 @@
     (is (= {:status 200 :body test-pacient}
            (request :post "/health" test-pacient)))))
 
+(deftest error-client
+  (let [max-oms+1 (+ max-oms 1)
+        min-oms-1 (- min-oms 1)
+        broken-pacient1 (assoc test-pacient
+                               :first-name ""
+                               :second-name ""
+                               :third-name ""
+                               :address ""
+                               :sex "Собака"
+                               :dob "2033-04-20"
+                               :oms max-oms+1)
+        broken-pacient2 (assoc test-pacient
+                               :first-name 1
+                               :second-name 2
+                               :third-name 3
+                               :address 4
+                               :sex 5
+                               :dob 6
+                               :oms min-oms-1)
+        broken-pacient3 (assoc test-pacient :oms "1111111111111111")]
+    (testing "Первый пак"
+      (is (= {:status 400
+              :body
+	      {:value
+	       {:address "",
+	        :sex "Собака",
+	        :first-name "",
+	        :dob "2033-04-20",
+	        :second-name "",
+	        :third-name "",
+	        :oms max-oms+1},
+	       :in ["request" "body-params"],
+	       :humanized
+	       {:address ["should be at least 1 characters"],
+	        :sex ["should be either М or Ж"],
+	        :first-name ["should be at least 1 characters"],
+	        :dob
+	        ["Should be a Date if format yyyy-mm-dd and not newer than today."],
+	        :second-name ["should be at least 1 characters"],
+	        :third-name ["should be at least 1 characters"],
+	        :oms ["should be at most 9999999999999999"]}}}
+             (request :post "/pacient/insert" broken-pacient1))))
+
+    (testing "Второй пак"
+      (is (= {:status 400
+              :body
+              {:value
+	       {:address 4,
+	        :sex 5,
+	        :first-name 1,
+	        :dob 6,
+	        :second-name 2,
+	        :third-name 3,
+	        :oms min-oms-1},
+	       :in ["request" "body-params"],
+	       :humanized
+	       {:address ["should be a string"],
+	        :sex ["should be either М or Ж"],
+	        :first-name ["should be a string"],
+	        :dob
+	        ["Should be a Date if format yyyy-mm-dd and not newer than today."],
+	        :second-name ["should be a string"],
+	        :third-name ["should be a string"],
+	        :oms ["should be at least 1000000000000000"]}}}
+             (request :post "/pacient/insert" broken-pacient2))))
+    (testing "Третий"
+      (is (= {:status 400
+              :body
+	       {:value
+	        {:address "Yekaterinburg",
+	         :sex "М",
+	         :first-name "Дмитрий",
+	         :dob "2000-04-20",
+	         :second-name "Поляков",
+	         :third-name "Сергеевич",
+	         :oms "1111111111111111"},
+	        :in ["request" "body-params"],
+	        :humanized
+	        {:oms
+	         ["should be an int" "should be a number" "should be a number"]}}}
+             (request :post "/pacient/insert" broken-pacient3))))))
+
 (deftest test-client
   (let [pacient-in-db (assoc test-pacient :id 1)
         pacient2-in-db (assoc test-pacient2 :id 2)
-        broken-pacient (assoc test-pacient
-                              :first-name ""
-                              :second-name ""
-                              :third-name ""
-                              :address ""
-                              :sex "Собака"
-                              :dob "2033-04-20"
-                              :dob "gav gav"
-                              :oms 81559997290003141)
-        broken-dob (assoc test-pacient :dob "gav gav" :oms 8155999729000)
         pacient-in-db-updated (assoc pacient-in-db :address "Peterburg")
         pacient-update-with-aeoms (assoc pacient-in-db :oms (:oms test-pacient2))
         pacient-in-db-without-id (dissoc pacient-in-db-updated :id)]
-
-    (testing "Вводим неправильные данные"
-      (testing "Первый пак"
-        (is (= {:status 400
-                :body
-                {:type "reitit.coercion/request-coercion",
-	         :coercion "malli"
-	         :in ["request" "body-params"]
-	         :humanized
-	         {:sex ["should be either М or Ж"]
-                  :address ["should be at least 1 characters"]
-	          :first-name ["should be at least 1 characters"]
-	          :dob
-	          ["Should be a Date if format yyyy-mm-dd and not newer than today."]
-	          :second-name ["should be at least 1 characters"]
-	          :third-name ["should be at least 1 characters"]
-	          :oms ["should be smaller than 10000000000000000"]}}}
-               (request :post "/pacient/insert" broken-pacient))))
-
-      (testing "Второй пак"
-        (is (= {:status 400
-                :body
-                {:type "reitit.coercion/request-coercion",
-	         :coercion "malli",
-	         :in ["request" "body-params"],
-	         :humanized
-	         {:oms ["should be larger than 999999999999999"]
-                  :dob
-	          ["Should be a Date if format yyyy-mm-dd and not newer than today."]}}}
-               (request :post "/pacient/insert" broken-dob)))))
 
     (testing "Полный жизненный цикл работы с приложением"
       (testing "Занесение нового пациента в базу."
@@ -123,7 +168,7 @@
                (request :post "/pacient/insert" test-pacient2))))
 
       (testing "Занесение нового пациента в базу с существующим в ней ОМС."
-        (is (= {:status 404
+        (is (= {:status 400
                 :body {:message "Пациент с таким ОМС уже существует."}}
                (request :post "/pacient/insert" test-pacient))))
 
@@ -136,7 +181,7 @@
                (request :put "/pacient/update" pacient-in-db-updated))))
 
       (testing "При обновлении данных решаем указать существующий ОМС."
-        (is (= {:status 404
+        (is (= {:status 400
                 :body {:message "Пациент с таким ОМС уже существует."}}
                (request :put "/pacient/update" pacient-update-with-aeoms))))
 
@@ -146,9 +191,15 @@
 
       (testing "Удаляем данные о пациенте забыв передать его id."
         (is (= {:status 400
-                :body {:type "reitit.coercion/request-coercion"
-	               :coercion "malli"
-	               :in ["request" "body-params"]
+                :body {:value
+	               {:address "Peterburg",
+	                :sex "М",
+	                :first-name "Дмитрий",
+	                :dob "2000-04-20",
+	                :second-name "Поляков",
+	                :third-name "Сергеевич",
+	                :oms max-oms}
+	               :in ["request" "body-params"],
 	               :humanized {:id ["missing required key"]}}}
                (request :delete "/pacient/remove" pacient-in-db-without-id))))
 
