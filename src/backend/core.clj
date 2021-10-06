@@ -135,26 +135,27 @@
      :data {:coercion (reitit.coercion.malli/create
                        {:error-keys #{:in :value :humanized}})
             :muuntaja   m/instance
-            :middleware[(reitit-exception/create-exception-middleware
+            :middleware[#(logger/wrap-with-logger %
+                                                  {:log-fn
+                                                   (fn [{:keys [level throwable message]}]
+                                                     (log level throwable message))})
+                        #(wrap-cors %
+                                    :access-control-allow-origin
+                                    [#".*"]
+                                    :access-control-allow-methods
+                                    [:get :post :put :delete])
+                        muuntaja/format-negotiate-middleware
+                        muuntaja/format-response-middleware
+                        muuntaja/format-request-middleware
+                        (reitit-exception/create-exception-middleware
                          (merge
                           reitit-exception/default-handlers
                           {::reitit-exception/wrap
                            (fn [handler ^Exception e request]
                              (error e (.getMessage e))
                              (handler e request))}))
-                         #(logger/wrap-with-logger %
-                          {:log-fn
-                           (fn [{:keys [level throwable message]}]
-                             (log level throwable message))})
-                         #(wrap-cors %
-                                     :access-control-allow-origin
-                                     [#".*"]
-                                     :access-control-allow-methods
-                                     [:get :post :put :delete])
-                         muuntaja/format-negotiate-middleware
-                         muuntaja/format-response-middleware
-                         muuntaja/format-request-middleware
-                         coercion/coerce-request-middleware]}})))
+                        coercion/coerce-request-middleware
+                        coercion/coerce-response-middleware]}})))
 
 (mount/defstate ^{:on-reload :noop}
   http-server

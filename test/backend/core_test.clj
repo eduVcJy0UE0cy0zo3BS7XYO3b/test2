@@ -116,39 +116,39 @@
       (is (= {:status 400
               :body
               {:value
-	       {:address 4,
-	        :sex 5,
-	        :first-name 1,
-	        :dob 6,
-	        :second-name 2,
-	        :third-name 3,
-	        :oms min-oms-1},
-	       :in ["request" "body-params"],
-	       :humanized
-	       {:address ["should be a string"],
-	        :sex ["should be either М or Ж"],
-	        :first-name ["should be a string"],
-	        :dob
-	        ["Should be a Date if format yyyy-mm-dd and not newer than today."],
-	        :second-name ["should be a string"],
-	        :third-name ["should be a string"],
-	        :oms ["should be at least 1000000000000000"]}}}
+               {:address 4,
+                :sex 5,
+                :first-name 1,
+                :dob 6,
+                :second-name 2,
+                :third-name 3,
+                :oms min-oms-1},
+               :in ["request" "body-params"],
+               :humanized
+               {:address ["should be a string"],
+                :sex ["should be either М or Ж"],
+                :first-name ["should be a string"],
+                :dob
+                ["Should be a Date if format yyyy-mm-dd and not newer than today."],
+                :second-name ["should be a string"],
+                :third-name ["should be a string"],
+                :oms ["should be at least 1000000000000000"]}}}
              (request :post "/pacient/insert" broken-pacient2))))
     (testing "Третий"
       (is (= {:status 400
               :body
-	       {:value
-	        {:address "Yekaterinburg",
-	         :sex "М",
-	         :first-name "Дмитрий",
-	         :dob "2000-04-20",
-	         :second-name "Поляков",
-	         :third-name "Сергеевич",
-	         :oms "1111111111111111"},
-	        :in ["request" "body-params"],
-	        :humanized
-	        {:oms
-	         ["should be an int" "should be a number" "should be a number"]}}}
+               {:value
+                {:address "Yekaterinburg",
+                 :sex "М",
+                 :first-name "Дмитрий",
+                 :dob "2000-04-20",
+                 :second-name "Поляков",
+                 :third-name "Сергеевич",
+                 :oms "1111111111111111"},
+                :in ["request" "body-params"],
+                :humanized
+                {:oms
+                 ["should be an int" "should be a number" "should be a number"]}}}
              (request :post "/pacient/insert" broken-pacient3))))))
 
 (deftest test-client

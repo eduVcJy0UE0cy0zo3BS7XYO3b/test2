@@ -13,7 +13,6 @@ GET http://localhost:8000/health
 # Получение списка всех пациентов
 GET http://localhost:8000/pacients
 :my-headers
--> jq-set-var
 
 # Проверка спеки
 POST http://localhost:8000/health
@@ -64,7 +63,7 @@ DELETE http://localhost:8000/pacient/remove
 :my-headers
 
 {
-"id": 25,
+"id": "25",
 "second-name": "Поляков",
 "first-name": "Дмитрий",
 "third-name": "Сергеевич",
