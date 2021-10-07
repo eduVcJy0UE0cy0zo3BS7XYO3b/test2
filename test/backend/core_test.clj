@@ -1,6 +1,7 @@
 (ns backend.core-test
   (:require [backend.core :refer :all]
             [conman.core :as conman]
+            [clojure.java.jdbc :as jdbc]
             [backend.db :as db]
             [cheshire.core :refer :all]
             [muuntaja.core :as m]
@@ -19,11 +20,14 @@
       :server-name        (env :db-test-server-name)
       :port-number        (env :db-test-port-number)}))
 
+
   (binding [db/*db* *test-db-spec*]
-    (db/drop-pacients-table)
-    (db/create-pacients-table)
-    (t)
-    (db/drop-pacients-table))
+        (db/drop-pacients-table)
+        (db/create-pacients-table)
+        (t))
+    ;; (conman/with-transaction [*test-db-spec*]
+    ;;   (jdbc/db-set-rollback-only! @*test-db-spec*)
+    ;;   )
 
   (conman/disconnect! *test-db-spec*))
 

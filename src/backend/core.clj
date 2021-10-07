@@ -24,8 +24,8 @@
 (defn exp [x n]
   (reduce * (repeat n x)))
 
-(defonce min-oms (exp 10 15))               ;1000.0000.0000.0000
-(defonce max-oms (- (exp 10 16) 1))         ;9999.9999.9999.9999
+(def min-oms (exp 10 15))               ;1000.0000.0000.0000
+(def max-oms (- (exp 10 16) 1))         ;9999.9999.9999.9999
 
 ;; https://www.tfoms.nnov.ru/documents/foms/2020/Prikaz_49_05.03.2020.pdf
 (def new-pacient-spec

@@ -3,6 +3,8 @@
   :dependencies [;; Язык сам по себе
                  [org.clojure/clojure "1.10.3"]
 
+                 [org.clojure/java.jdbc "0.7.12"]
+
                  ;; Роуты
                  [metosin/reitit "0.5.15"]
 
